@@ -53,10 +53,11 @@ BATCH_SIZE = 3
 
 # --- Vector DB / Confidence Scoring ---
 PDF_FOLDER = os.path.join(os.path.dirname(__file__), "docs")
+KNOWLEDGE_YAML = os.path.join(os.path.dirname(__file__), "knowledge", "capabilities.yaml")
 VECTOR_DB_PATH = os.path.join(os.path.dirname(__file__), "chroma_db")
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-CHUNK_SIZE = 200
-CHUNK_OVERLAP = 50
+EMBEDDING_MODEL = "intfloat/e5-small-v2"
+CHUNK_SIZE = 500
+CHUNK_OVERLAP = 100
 GOOD_FIT_THRESHOLD = 75
 MEDIUM_FIT_THRESHOLD = 50
 

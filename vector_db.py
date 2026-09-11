@@ -1,23 +1,29 @@
 """
 Vector DB module for TenderDad.
 
-Ingests company PDFs into a local ChromaDB vector store, and provides
-semantic similarity search + confidence scoring for tender classification.
+Ingests the offline knowledge base (capabilities.yaml) into a local ChromaDB vector store
+and an in-memory BM25 index. Provides hybrid search (semantic + keyword) with reciprocal 
+rank fusion, and a confidence scoring fallback for tender classification.
 """
 import os
 import hashlib
 import json
-import pymupdf  # PyMuPDF
+import yaml
+import re
 import chromadb
+from rank_bm25 import BM25Okapi
 from sentence_transformers import SentenceTransformer
 from config import (
-    PDF_FOLDER, VECTOR_DB_PATH, EMBEDDING_MODEL,
+    KNOWLEDGE_YAML, VECTOR_DB_PATH, EMBEDDING_MODEL,
     CHUNK_SIZE, CHUNK_OVERLAP, GOOD_FIT_THRESHOLD, MEDIUM_FIT_THRESHOLD
 )
 
 # --- Globals (initialized lazily) ---
 _model = None
 _collection = None
+_bm25 = None
+_bm25_docs = []
+_bm25_metadatas = []
 
 
 def _get_model():
@@ -25,6 +31,7 @@ def _get_model():
     global _model
     if _model is None:
         print("[VectorDB] Loading embedding model...")
+        # e5 models require instructions
         _model = SentenceTransformer(EMBEDDING_MODEL)
         print(f"[VectorDB] Model '{EMBEDDING_MODEL}' loaded.")
     return _model
@@ -36,193 +43,222 @@ def _get_collection():
     if _collection is None:
         client = chromadb.PersistentClient(path=VECTOR_DB_PATH)
         _collection = client.get_or_create_collection(
-            name="company_docs",
+            name="company_knowledge",
             metadata={"hnsw:space": "cosine"}
         )
     return _collection
 
 
-def _extract_text_from_pdf(pdf_path: str) -> str:
-    """Extract all text from a PDF file using PyMuPDF."""
-    doc = pymupdf.open(pdf_path)
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    doc.close()
-    return text
-
-
-def _chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list[str]:
-    """Split text into overlapping chunks."""
+def _chunk_text_sentences(text: str, target_size: int = CHUNK_SIZE) -> list[str]:
+    """Sentence-aware chunking."""
+    # Split on sentence boundaries (e.g., period followed by space and capital letter)
+    # or simple punctuation splits
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    
     chunks = []
-    start = 0
-    while start < len(text):
-        end = start + chunk_size
-        chunk = text[start:end].strip()
-        if chunk:  # Skip empty chunks
-            chunks.append(chunk)
-        start += chunk_size - overlap
+    current_chunk = []
+    current_length = 0
+    
+    for sentence in sentences:
+        if not sentence.strip():
+            continue
+        sentence_len = len(sentence)
+        if current_length + sentence_len > target_size and current_chunk:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = [sentence]
+            current_length = sentence_len
+        else:
+            current_chunk.append(sentence)
+            current_length += sentence_len + 1 # +1 for space
+            
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+        
     return chunks
 
 
-def _compute_pdf_hash(pdf_folder: str) -> str:
-    """Compute a combined hash of all PDFs in the folder to detect changes."""
+def _compute_yaml_hash(yaml_path: str) -> str:
+    """Compute a hash of the YAML file to detect changes."""
+    if not os.path.exists(yaml_path):
+        return ""
     hasher = hashlib.md5()
-    pdf_files = sorted([f for f in os.listdir(pdf_folder) if f.lower().endswith('.pdf')])
-    for fname in pdf_files:
-        fpath = os.path.join(pdf_folder, fname)
-        hasher.update(fname.encode())
-        hasher.update(str(os.path.getsize(fpath)).encode())
-        hasher.update(str(os.path.getmtime(fpath)).encode())
+    with open(yaml_path, "rb") as f:
+        hasher.update(f.read())
     return hasher.hexdigest()
 
 
-def ingest_pdfs(pdf_folder: str = PDF_FOLDER):
+def load_knowledge_base():
     """
-    Ingest all PDFs from the folder into ChromaDB.
-    Skips if the DB already exists and PDFs haven't changed.
+    Load capabilities.yaml into ChromaDB (if changed) and build in-memory BM25 index.
     """
+    global _bm25, _bm25_docs, _bm25_metadatas
+    
+    if not os.path.exists(KNOWLEDGE_YAML):
+        print(f"[VectorDB] Knowledge base not found at {KNOWLEDGE_YAML}")
+        return
+        
+    with open(KNOWLEDGE_YAML, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+        
+    capabilities = data.get("capabilities", [])
+    past_projects = data.get("past_projects", [])
+    
+    all_docs = []
+    all_ids = []
+    all_metadatas = []
+    
+    # 1. Process Capabilities (atomic, no chunking needed)
+    for i, cap in enumerate(capabilities):
+        doc_text = f"passage: {cap.strip()}"
+        all_docs.append(doc_text)
+        all_ids.append(f"capability_{i}")
+        all_metadatas.append({"source_type": "capability", "index": i})
+        
+    # 2. Process Past Projects (chunk the description if long)
+    for i, proj in enumerate(past_projects):
+        client = proj.get("client", "")
+        area = proj.get("area", "")
+        classification = proj.get("classification", "")
+        desc = proj.get("description", "")
+        
+        full_text = f"Project for {client}. Area: {area}. Classification: {classification}. Description: {desc}"
+        chunks = _chunk_text_sentences(full_text)
+        
+        for chunk_idx, chunk in enumerate(chunks):
+            doc_text = f"passage: {chunk}"
+            all_docs.append(doc_text)
+            all_ids.append(f"project_{i}_chunk_{chunk_idx}")
+            all_metadatas.append({"source_type": "past_project", "index": i, "chunk": chunk_idx})
+            
+    if not all_docs:
+        print("[VectorDB] No documents found in knowledge base!")
+        return
+        
+    # --- Build BM25 Index (always built in-memory) ---
+    print(f"[VectorDB] Building BM25 index with {len(all_docs)} documents...")
+    tokenized_docs = [doc.lower().split() for doc in all_docs]
+    _bm25 = BM25Okapi(tokenized_docs)
+    _bm25_docs = all_docs
+    _bm25_metadatas = all_metadatas
+    
+    # --- Populate ChromaDB (only if hash changed) ---
     collection = _get_collection()
-    hash_file = os.path.join(VECTOR_DB_PATH, "pdf_hash.json")
-    current_hash = _compute_pdf_hash(pdf_folder)
-
-    # Check if we already ingested these exact PDFs
+    hash_file = os.path.join(VECTOR_DB_PATH, "kb_hash.json")
+    current_hash = _compute_yaml_hash(KNOWLEDGE_YAML)
+    
     if os.path.exists(hash_file):
         with open(hash_file, "r") as f:
             stored = json.load(f)
         if stored.get("hash") == current_hash and collection.count() > 0:
-            print(f"[VectorDB] PDF database already up to date ({collection.count()} chunks). Skipping ingestion.")
+            print(f"[VectorDB] Vector DB already up to date ({collection.count()} docs). Skipping ingestion.")
             return
 
-    # Clear existing data and re-ingest
-    print("[VectorDB] Ingesting PDFs...")
-    
-    # Delete all existing documents
+    print("[VectorDB] Ingesting into Vector DB...")
     existing = collection.get()
     if existing["ids"]:
         collection.delete(ids=existing["ids"])
-
+        
     model = _get_model()
-
-    pdf_files = [f for f in os.listdir(pdf_folder) if f.lower().endswith('.pdf')]
-    if not pdf_files:
-        print(f"[VectorDB] No PDF files found in '{pdf_folder}'!")
-        return
-
-    all_chunks = []
-    all_ids = []
-    all_metadatas = []
-
-    for pdf_file in pdf_files:
-        pdf_path = os.path.join(pdf_folder, pdf_file)
-        print(f"[VectorDB] Extracting text from: {pdf_file}")
-        text = _extract_text_from_pdf(pdf_path)
-        
-        if not text.strip():
-            print(f"[VectorDB] Warning: No text extracted from {pdf_file}")
-            continue
-        
-        chunks = _chunk_text(text)
-        print(f"[VectorDB]   -> {len(chunks)} chunks from {pdf_file}")
-
-        for i, chunk in enumerate(chunks):
-            all_chunks.append(chunk)
-            all_ids.append(f"{pdf_file}_{i}")
-            all_metadatas.append({"source": pdf_file, "chunk_index": i})
-
-    # Add explicit capability keywords as high-signal anchor documents.
-    # These short phrases match closely with tender titles and boost scores
-    # for the company's core competencies.
-    capability_anchors = [
-        "HVAC system design, supply, installation, testing and commissioning",
-        "Clean room construction and validation",
-        "Air Handling Unit AHU supply and installation",
-        "Supply and installation of AHU and ducting system",
-        "Ducting fabrication and installation for HVAC systems",
-        "AHU and ducting installations",
-        "HVAC work for clean room and laboratory",
-        "HVAC work for clean room construction",
-        "Heating ventilation and air conditioning HVAC contractor",
-        "Cleanroom HVAC system for pharmaceutical and hospital",
-        "Central air conditioning system installation and maintenance",
-        "Chiller plant room equipment supply and installation",
-        "GI ducting MS ducting and insulation work",
-        "HVAC AMC annual maintenance contract",
-        "VRF VRV system supply and installation",
-        "Precision air conditioning for data center and server room",
-        "Modular clean room and pass box and air shower",
-        "Exhaust system and fume hood installation",
-        "BMS building management system for HVAC",
-    ]
-    for i, anchor in enumerate(capability_anchors):
-        all_chunks.append(anchor)
-        all_ids.append(f"capability_anchor_{i}")
-        all_metadatas.append({"source": "company_capabilities", "chunk_index": i})
     
-    print(f"[VectorDB]   -> {len(capability_anchors)} capability anchor documents added")
-
-    if not all_chunks:
-        print("[VectorDB] No text extracted from any PDF!")
-        return
-
-    # Embed all chunks
-    print(f"[VectorDB] Embedding {len(all_chunks)} chunks...")
-    embeddings = model.encode(all_chunks, show_progress_bar=True).tolist()
-
-    # Add to ChromaDB (in batches of 500 to avoid limits)
+    print(f"[VectorDB] Embedding {len(all_docs)} chunks...")
+    embeddings = model.encode(all_docs, show_progress_bar=True).tolist()
+    
     batch_size = 500
-    for i in range(0, len(all_chunks), batch_size):
-        end = min(i + batch_size, len(all_chunks))
+    for i in range(0, len(all_docs), batch_size):
+        end = min(i + batch_size, len(all_docs))
         collection.add(
             ids=all_ids[i:end],
-            documents=all_chunks[i:end],
+            documents=all_docs[i:end],
             embeddings=embeddings[i:end],
             metadatas=all_metadatas[i:end]
         )
-
-    # Save the hash so we skip next time
+        
     os.makedirs(VECTOR_DB_PATH, exist_ok=True)
     with open(hash_file, "w") as f:
         json.dump({"hash": current_hash}, f)
-
-    print(f"[VectorDB] Done! {len(all_chunks)} chunks ingested into ChromaDB.\n")
+        
+    print(f"[VectorDB] Done! {len(all_docs)} docs ingested into ChromaDB.\n")
 
 
 def query_tenders(tender_text: str, top_k: int = 5) -> dict:
     """
-    Query the vector DB for the most similar company document chunks.
-    
-    Returns a dict with:
-        - similarities: list of float (cosine similarity scores, 0-1)
-        - documents: list of str (matching text chunks)
-        - metadatas: list of dict (source file info)
+    Query the vector DB + BM25 using reciprocal rank fusion.
     """
+    global _bm25, _bm25_docs, _bm25_metadatas
+    
+    # Ensure loaded
+    if _bm25 is None:
+        load_knowledge_base()
+        
+    if _bm25 is None:
+        print("[VectorDB] Warning: Knowledge base could not be loaded!")
+        return {"similarities": [], "documents": [], "metadatas": []}
+
     model = _get_model()
     collection = _get_collection()
 
-    if collection.count() == 0:
-        print("[VectorDB] Warning: Vector DB is empty! Run ingest_pdfs() first.")
-        return {"similarities": [], "documents": [], "metadatas": []}
+    # E5 models require "query: " prefix
+    formatted_query = f"query: {tender_text}"
+    query_embedding = model.encode(formatted_query).tolist()
 
-    # Embed the tender text
-    query_embedding = model.encode(tender_text).tolist()
-
-    # Query ChromaDB
+    # Get more results from vector search to fuse properly
+    fetch_k = max(20, top_k * 2)
+    
+    # 1. Vector Search
     results = collection.query(
         query_embeddings=[query_embedding],
-        n_results=top_k,
+        n_results=min(fetch_k, collection.count()),
         include=["documents", "metadatas", "distances"]
     )
-
-    # ChromaDB returns cosine distances (0 = identical, 2 = opposite)
-    # Convert to similarity: similarity = 1 - distance
-    distances = results["distances"][0] if results["distances"] else []
-    similarities = [max(0, 1 - d) for d in distances]
-
+    
+    vector_docs = results["documents"][0] if results["documents"] else []
+    vector_distances = results["distances"][0] if results["distances"] else []
+    vector_metas = results["metadatas"][0] if results["metadatas"] else []
+    
+    # Convert distances to similarities (0 to 1)
+    vector_similarities = [max(0.0, 1.0 - d) for d in vector_distances]
+    
+    # 2. BM25 Search
+    tokenized_query = tender_text.lower().split()
+    bm25_scores = _bm25.get_scores(tokenized_query)
+    
+    # Sort all docs by BM25 score
+    bm25_ranked_indices = sorted(range(len(bm25_scores)), key=lambda i: bm25_scores[i], reverse=True)[:fetch_k]
+    
+    # 3. Reciprocal Rank Fusion (RRF)
+    # RRF_score = 1 / (k + rank_vector) + 1 / (k + rank_bm25)
+    rrf_k = 60
+    doc_rrf_scores = {}
+    doc_to_meta = {}
+    doc_to_sim = {}
+    
+    # Add vector ranks
+    for rank, doc in enumerate(vector_docs):
+        doc_rrf_scores[doc] = 1.0 / (rrf_k + rank + 1)
+        doc_to_meta[doc] = vector_metas[rank]
+        doc_to_sim[doc] = vector_similarities[rank]
+        
+    # Add BM25 ranks
+    for rank, idx in enumerate(bm25_ranked_indices):
+        doc = _bm25_docs[idx]
+        score = 1.0 / (rrf_k + rank + 1)
+        doc_rrf_scores[doc] = doc_rrf_scores.get(doc, 0.0) + score
+        if doc not in doc_to_meta:
+            doc_to_meta[doc] = _bm25_metadatas[idx]
+            # Since it wasn't in vector top-k, assign a baseline similarity or 0
+            doc_to_sim[doc] = 0.0 
+            
+    # Sort by RRF score
+    sorted_docs = sorted(doc_rrf_scores.keys(), key=lambda d: doc_rrf_scores[d], reverse=True)
+    top_docs = sorted_docs[:top_k]
+    
+    final_similarities = [doc_to_sim[d] for d in top_docs]
+    final_metadatas = [doc_to_meta[d] for d in top_docs]
+    
     return {
-        "similarities": similarities,
-        "documents": results["documents"][0] if results["documents"] else [],
-        "metadatas": results["metadatas"][0] if results["metadatas"] else []
+        "similarities": final_similarities,
+        "documents": top_docs,
+        "metadatas": final_metadatas
     }
 
 
