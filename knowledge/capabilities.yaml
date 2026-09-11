@@ -1,368 +1,337 @@
 capabilities:
-- Design and engineer turnkey cleanroom projects from concept to commissioning
-- Manufacture modular cleanroom wall panels, doors, ceilings, flooring, windows, and
-  light fixtures
-- Supply cleanroom equipment and accessories such as HEPA filters, pass boxes, laminar
-  flow units, and air showers
-- Design, install, and maintain HVAC systems for controlled environments
-- Perform cleanroom classification and validation according to ISO 14644 and other
+- Design and engineer custom cleanroom layouts
+- Provide turnkey cleanroom construction and commissioning
+- Manufacture modular cleanroom wall panels, doors, ceilings, flooring, and windows
+- Supply cleanroom equipment such as HEPA filters, pass boxes, air showers, and laminar
+  flow units
+- Deliver HVAC systems including air handling units, chillers, and condensers for
+  controlled environments
+- Perform cleanroom classification and validation according to ISO 14644 and GMP standards
+- Conduct site surveys, engineering calculations, and AUTOCAD design documentation
+- Offer electrical and utility piping design, installation, and maintenance for cleanroom
+  facilities
+- Implement building management systems for temperature, humidity, pressure, and fire
+  safety monitoring
+- Provide fire suppression and detection systems, including gas‑based and conventional
+  alarms
+- Supply and install ductwork using GI, aluminum, or stainless steel for various cleanliness
+  levels
+- Integrate BMS for energy efficiency and occupant safety
+- Provide modular cleanroom flexibility, relocation, and future expansion services
+- Deliver custom cleanroom finishes meeting cGMP cleaning requirements
+- Consult on regulatory compliance with FDA, WHO, USFDA, UKMHRA, EUGMP, and related
   standards
-- Conduct site surveys, develop design concepts, and provide engineering calculations
-  with professional engineer review
-- Integrate building management and fire protection systems for cleanroom facilities
-- Design and install utility piping systems for gases, water, and other utilities
-- Provide comprehensive electrical services including switchgear, power and control
-  wiring, lighting, and emergency systems
-- Deliver custom cleanroom solutions for pharmaceutical, biotech, semiconductor, defense,
-  food, petrochemical, and dairy sectors
-- Offer modular cleanroom flexibility with easy relocation, expansion, and future
-  upgrades
-- Supply air handling units (AHU) and ducting solutions using GI, aluminum, and stainless
-  steel
-- Provide chillers and condensing units for precise temperature control
-- Offer validation services to ensure compliance with ISO 14644 and cGMP requirements
-- Consult on regulatory compliance with WHO, USFDA, UKMHRA, GMP, and related standards
-- Provide design consulting for specialized facility utilities such as cleanrooms,
-  electronics labs, and HVAC systems
-- Install and certify modular cleanrooms to meet ISO 14644/US Fed STD 209E standards
-- Implement monitoring systems for temperature, humidity, pressure, and filter performance
-- Provide fire suppression systems including NOVEC1230, FM200, and inert gases
-- Install fire alarm systems (conventional, addressable, semi‑addressable)
-- Deploy gas leak detection systems (fixed and portable)
-- Integrate building management systems for energy efficiency, occupant safety, and
-  comfort
+- Manufacture and install cleanroom doors with interlocked vertical edges for air
+  integrity
+- Provide cleanroom ceiling systems with pre‑engineered steel panels and integrated
+  HEPA filters
+- Supply and install pass boxes (static and dynamic) and laminar flow workstations
+- Design HVAC solutions for temperature, humidity, and pressure control in pharmaceutical
+  and semiconductor labs
+- Offer maintenance and validation services for cleanroom equipment and systems
 past_projects:
 - client: Semiconductor Laboratory, Mohali.
   area: 1900 Sq.ft
   classification: Class 1,000 & 1,00,000
-  description: India Optel Limited, Chennai.
+  description: ''
 - client: India Optel Limited, Chennai.
   area: 6400 Sq.ft
   classification: Class 1,000, 10,000 & 1,00,000
-  description: Clean Room Facility and interior work in DTIS (EO) at AERO Hub. Bharat
-    Electronics Limited - Bangalore.
+  description: Clean Room Facility and interior work in DTIS (EO) at AERO Hub.
 - client: Bharat Electronics Limited - Bangalore.
   area: 6600 Sq.ft
   classification: Class 10,000 & 1,00,000
   description: Providing Class 10000 (ISO 7) Clean Room Facility For Micro Offset
-    in Solar Building, Components SBU at BE-BG. Indian Institute of Technology, Ropar
+    in Solar Building, Components SBU at BE-BG.
 - client: Indian Institute of Technology, Ropar
   area: 2500 Sq.ft
   classification: Class 100 , 1,000 , 10,000 & 1,00,000
-  description: Setting up of Clean Room Facility on Turnkey Basis Pandit Deendayal
-    Energy University- PDEU, Gandhinagar
+  description: Setting up of Clean Room Facility on Turnkey Basis
 - client: Pandit Deendayal Energy University- PDEU, Gandhinagar
   area: 2350 Sq.ft
   classification: Class 100 & 1,000
-  description: ESTABLISHMENT OF ISO 5 & 6 CLEAN ROOM FACILITY INTERIOR WORK Indian
-    Institute of Technology, Mandi
+  description: ESTABLISHMENT OF ISO 5 & 6 CLEAN ROOM FACILITY INTERIOR WORK
 - client: Indian Institute of Technology, Mandi
   area: 3500 Sq.ft
   classification: Class 100 & 1000
-  description: Lithography , Sample Preparation Process Area & Gowning
+  description: ''
+- client: ': Lithography , Sample Preparation Process Area & Gowning'
+  area: ''
 - client: Punjab Engineering College - Chandigarh
   area: 1700 Sq.ft
   classification: CLASS 1,000 & 10,000
-  description: Semiconductor Device Fabrication And Research Plot No.355/375, RSC37,
-    Opp. Mumbai Bank, Gorai II, Borivali (west), Mumbai - 400 092 Tel No. +91-9321325199
-    | 9321315182 | 9321305586
+  description: Semiconductor Device Fabrication And Research Setting up of class 1K
+    and Class 100K clean room
 - client: Electronics Corporation of India Limited - Hyderabad
   area: 2152 Sq.ft
   classification: Class 10,000
-  description: Cleanroom for CARBON FIBRE ( CFRP ) Bharat Electronics Limited - Bangalore.
+  description: Cleanroom for CARBON FIBRE ( CFRP )
 - client: Bharat Electronics Limited - Bangalore.
   area: 1450 Sq.ft
   classification: Class 10,000 & 1,00,000
-  description: Cleanroom Facility for DIRCM Project Indian Institute of Technology,
-    Patna
+  description: Cleanroom Facility for DIRCM Project
 - client: Indian Institute of Technology, Patna
   area: 1200 Sq.ft
   classification: Class 1,000 & 10,000
-  description: Setting up of Clean Room Facility Apar Industries Ltd., Mumbai
+  description: Setting up of Clean Room Facility
 - client: Apar Industries Ltd., Mumbai
   area: 300 Sq.ft
   classification: Class 1,00,000
-  description: IBC FILLING SYSTEM National Institute of Science Education and Research
-    - Bhubaneswar
+  description: IBC FILLING SYSTEM
 - client: National Institute of Science Education and Research - Bhubaneswar
   area: 450 Sq.ft
   classification: Class 1,000
-  description: Cleanroom in Centre for Medical & Radiological Physics Mineral Exploration
-    and Consultancy Limited, Nagpur
+  description: Cleanroom in Centre for Medical & Radiological Physics
 - client: Mineral Exploration and Consultancy Limited, Nagpur
   area: 300 Sq.ft
   classification: 1,000
-  description: Mineral Exploration Lab Dabur India Limited, Tezpur
+  description: Mineral Exploration Lab
 - client: Dabur India Limited, Tezpur
   area: 15500 Sq.ft
   classification: Low Side HVAC
-  description: Hajmola Plant Hindustan Foods Limited, Guwahati
+  description: Hajmola Plant
 - client: Hindustan Foods Limited, Guwahati
   area: 1000 Sq.ft
   classification: Class 10,000 & Class 1,00,000
-  description: Microlab Dabur India Limited- Baddi
+  description: Microlab
 - client: Dabur India Limited- Baddi
   area: 648 Sq.Ft.
   classification: Class 1,000 , 10,000 & 100,000.
-  description: Microbiology Lab Jabil Circuit India Pvt Ltd - Pune
+  description: Microbiology Lab
 - client: Jabil Circuit India Pvt Ltd - Pune
   area: 23000 Sq.ft
   classification: AC 3 Micron
-  description: Cleanroom for production area. Centre for Development of Advanced Computing,
-    Pune
+  description: Cleanroom for production area.
 - client: Centre for Development of Advanced Computing, Pune
   area: 350 Sq.ft
   classification: Class 10,000
-  description: Creation of Clean Room for Quantam Lab Bharat Electronics Limited -
-    Bangalore.
+  description: Creation of Clean Room for Quantam Lab
 - client: Bharat Electronics Limited - Bangalore.
   area: 1076 Sq.ft
   classification: Class 10,000
-  description: Testing Hanger TATA Consultancy Services Ltd, Goa
+  description: Testing Hanger
 - client: TATA Consultancy Services Ltd, Goa
   area: 658 Sq.ft.
   classification: Class 10,000
-  description: Optical Lens Assembly (Temp=22± 2´C RH ≤ 50%) Indian Institute of Technology,
-    Kanpur
+  description: Optical Lens Assembly (Temp=22± 2´C RH ≤ 50%)
 - client: Indian Institute of Technology, Kanpur
   area: 9500 Sq.ft
   classification: Class 1000 &10,000
-  description: Yellow room, Wet Process Lab, Sensor Lab , R2R Lab,Printing Lab Dabur
-    India Limited- Indore
+  description: Yellow room, Wet Process Lab, Sensor Lab , R2R Lab,Printing Lab
 - client: Dabur India Limited- Indore
   area: 60000 Sq.ft
   classification: Low Side HVAC
-  description: SITC of HVAC low side work for Food Block Indian Institute of Technology,
-    Kanpur
+  description: SITC of HVAC low side work for Food Block
 - client: Indian Institute of Technology, Kanpur
   area: 9500 Sq.ft
   classification: Cleanroom Utility
-  description: Utility systems for NCflexE cleanroom & lab National Centre for Cell
-    Science - Pune
+  description: Utility systems for NCflexE cleanroom & lab
 - client: National Centre for Cell Science - Pune
   area: 325 Sq.ft
   classification: Class 10,000
-  description: 'CELL CULTURE FACILITY Bhaba Atomic Research Centre - Trombay - Mumbai
-    Area Description : S.I.T.C OF HVAC SYSTEM FOR CONTROL ROOM ( COMPRIES OF 4 NOS
-    OF AHU WITH HIGH SIDE & LOW SIDE ) National Centre for Cell Science - Pune'
+  description: CELL CULTURE FACILITY
+- client: Bhaba Atomic Research Centre - Trombay - Mumbai
+  description: S.I.T.C OF HVAC SYSTEM FOR CONTROL ROOM ( COMPRIES OF 4 NOS OF AHU
+    WITH HIGH SIDE & LOW SIDE )
 - client: National Centre for Cell Science - Pune
   area: 1000 Sq.ft
   classification: Class 10,000
-  description: CELL REPOSITORI LAB Bharat Electronics Limited - Pune.
+  description: CELL REPOSITORI LAB
 - client: Bharat Electronics Limited - Pune.
   area: 500 Sq.ft
   classification: Class 10,000
-  description: Assembly Area Bharat Electronics Limited - Chennai
+  description: Assembly Area
 - client: Bharat Electronics Limited - Chennai
   area: 3000 Sq.ft
   classification: Class 10,000
-  description: Assembly Area Jabil Circuit India Pvt Ltd - Pune
+  description: Assembly Area
+- client: Jabil Circuit India Pvt Ltd - Pune
+  classification: AC 3 Micron
+  description: Cleanroom for production area.
 - client: Apar Industries Ltd. - Mumbai
   area: 1400 Sq.ft
   classification: Class 100,000
-  description: Jelly Filling, White Oil Filling & Wax Cutting Area Gulshan Polyols
-    Limited, New Mumbai
+  description: Jelly Filling, White Oil Filling & Wax Cutting Area
 - client: Gulshan Polyols Limited, New Mumbai
   area: 2000 Sq.ft
   classification: Class 100,000
-  description: Drum Filling Area Kinam Engineering Industries, Ambernath
+  description: Drum Filling Area
 - client: Kinam Engineering Industries, Ambernath
   area: 485 Sq.ft
   classification: Class 100,000
-  description: Argon welding ( TIG welding ) Dabur India Limited- Jammu
+  description: Argon welding ( TIG welding )
 - client: Dabur India Limited- Jammu
   area: 502 Sq.ft
   classification: Class 10000 & 100000
-  description: Microbiology Lab Athena Drug Delivery Solutions Pvt. Ltd., Ambernath,
-    Maharashtra
+  description: Microbiology Lab
 - client: Athena Drug Delivery Solutions Pvt. Ltd., Ambernath, Maharashtra
   area: 525 Sq.ft
   classification: Class 100,000
-  description: COMPRESSION II & GRANULATION ROOM (Temp=22± 2´C RH ≤ 50%) Roquette
-    Riddi Siddhi Pvt Ltd , Gokak
+  description: COMPRESSION II & GRANULATION ROOM (Temp=22± 2´C RH ≤ 50%)
 - client: Roquette Riddi Siddhi Pvt Ltd , Gokak
   area: 362+ 836 Sq.ft
   classification: Class 100,000
-  description: MICROLAB / M.D.PACKING AREA Mallak Speciality Pvt. Ltd., Mahad
+  description: MICROLAB / M.D.PACKING AREA
 - client: Mallak Speciality Pvt. Ltd., Mahad
   area: 453 Sq.ft
   classification: Class 100,000
-  description: PRODUCTION AREA Roquette Riddi Siddhi Pvt Ltd , Gokak
+  description: PRODUCTION AREA
 - client: Roquette Riddi Siddhi Pvt Ltd , Gokak
   area: 6791 Sq.ft
   classification: FDV 10 MICORN
-  description: MCC PANAL ROOM Applicomp India limited.
+  description: MCC PANAL ROOM
 - client: Applicomp India limited.
   area: 3500 Sq.ft.
   classification: Class 100,000
-  description: Assemble area / PCBA TABLE.( Temp & RH Controller) Dorfketal Chemicals
-    India Pvt. Ltd., Taloja
+  description: Assemble area / PCBA TABLE.( Temp & RH Controller)
 - client: Dorfketal Chemicals India Pvt. Ltd., Taloja
   area: 4664 Sq.ft
   classification: A.C. 3 MICRON
-  description: R & D Laboratory Dabur India Limited
+  description: R & D Laboratory
 - client: Dabur India Limited
   area: 616 Sq.ft
   classification: Class 10,000
-  description: MICROLAB (Temp=24± 2´C RH ≤ 65%) Apar Industries Ltd., Rabale
+  description: MICROLAB (Temp=24± 2´C RH ≤ 65%)
 - client: Apar Industries Ltd., Rabale
   area: 465 Sq.ft
   classification: FDV 5 MICRON
-  description: DRUM FILLING ROOM Roquette Riddi Siddhi Pvt Ltd , Gokak
+  description: DRUM FILLING ROOM
 - client: Roquette Riddi Siddhi Pvt Ltd , Gokak
   area: 4019 Sq.ft
   classification: Class 100,000
-  description: VFD, DCS & MCC ROOM Athena Drug Delivery Solutions Pvt. Ltd., Ambernath,
-    Maharashtra
+  description: VFD, DCS & MCC ROOM
 - client: Athena Drug Delivery Solutions Pvt. Ltd., Ambernath, Maharashtra
   area: 2144 & 190 Sq.Ft
   classification: Class 10,000 & 100,000
   description: R.M Stores & Tablet Compression Area (Low RH application RH ≤ 20%)
-    Tumkur Co-operative Milk Producers Societies Union Ltd.
 - client: Tumkur Co-operative Milk Producers Societies Union Ltd.
   area: 1300 Sq.ft
   classification: Class 10,000
-  description: Tetrapack Milk Area (Temp=22± 2´C RH ≤ 50%) Indian Institute of Technology
-    - Goa
+  description: Tetrapack Milk Area (Temp=22± 2´C RH ≤ 50%)
 - client: Indian Institute of Technology - Goa
   area: 1700 Sq.ft
   classification: Cleanroom Infra.
-  description: Cleanroom Infrastructure Savita Oil Technologies Ltd., Vapi
+  description: Cleanroom Infrastructure
 - client: Savita Oil Technologies Ltd., Vapi
   area: 1200 Sq.ft
   classification: Class 10,000
-  description: Drum filling area & Pail filling area Roquette Riddi Siddhi Pvt Ltd
+  description: Drum filling area & Pail filling area
 - client: Roquette Riddi Siddhi Pvt Ltd
   area: 362+ 836 Sq.ft
   classification: Class 100,000
-  description: Microlab/M.D Packing Room (Temp=22± 2´C RH ≤ 50%) Duval Enterprises
-    Pvt Ltd ( Lotus Household Product), Bhiwandi
+  description: Microlab/M.D Packing Room (Temp=22± 2´C RH ≤ 50%)
 - client: Duval Enterprises Pvt Ltd ( Lotus Household Product), Bhiwandi
   area: 1000 Sq.ft
   classification: Class 100,000
-  description: Food Packing & Processing (Temp=22± 2´C RH ≤ 50%) Millennium Appliances
-    India Limited.
+  description: Food Packing & Processing (Temp=22± 2´C RH ≤ 50%)
 - client: Millennium Appliances India Limited.
   area: 3550 Sq.ft.
   classification: Class 100,000
-  description: Assemble area / PCBA TABLE.( Temp & RH Controller) Roquette Riddi Siddhi
-    Pvt Ltd , Panthnagar
+  description: Assemble area / PCBA TABLE.( Temp & RH Controller)
 - client: Roquette Riddi Siddhi Pvt Ltd , Panthnagar
   area: 4038 Sq.ft
   classification: Class 100,000
-  description: Electrical substation room Millennium Appliances India Limited.
+  description: Electrical substation room
 - client: Millennium Appliances India Limited.
   area: 3650 Sq.ft.
   classification: Class 100,000
-  description: Assemble area / PCBA TABLE.( Temp & RH Controller) Sequent Scientific
-    Limited, Mahad
+  description: Assemble area / PCBA TABLE.( Temp & RH Controller)
 - client: Sequent Scientific Limited, Mahad
   area: 1100 Sq.ft.
   classification: Class 10,000
-  description: Microlab. (Temp=22± 2´C RH ≤ 50%) Alivira Animal Health Limited., Ambernath
+  description: Microlab. (Temp=22± 2´C RH ≤ 50%)
 - client: Alivira Animal Health Limited., Ambernath
   area: 1075 Sq.ft.
   classification: Class 10,000
-  description: Microlab. (Temp=22± 2´C RH ≤ 50%) Christie Digital Systems India Pvt
-    Limited, Bangalore
+  description: Microlab. (Temp=22± 2´C RH ≤ 50%)
 - client: Christie Digital Systems India Pvt Limited, Bangalore
   area: 1200 Sq.ft.
   classification: Class 100
-  description: Assembly / Sub - Assembly of Core Electronic Chip Pregna International
-    Limited, Gujarat
+  description: Assembly / Sub - Assembly of Core Electronic Chip
 - client: Pregna International Limited, Gujarat
   area: 3750 Sq.ft.
   classification: Class 10,000 & 100,000
-  description: Microlab / Production Area(Temp=22± 2´C RH ≤ 50%) Bio-sole India Pvt.
-    Ltd, Pali (Marwar), Rajastan.
+  description: Microlab / Production Area(Temp=22± 2´C RH ≤ 50%)
 - client: Bio-sole India Pvt. Ltd, Pali (Marwar), Rajastan.
   area: 4886 Sq.ft.
   classification: Class 100,000
-  description: Manufactruing area.(Temp=22± 2´C RH ≤ 50%) DUVAL Enterprises Pvt Ltd
-    ZYG Pharma, Madhya Pradesh
+  description: Manufactruing area.(Temp=22± 2´C RH ≤ 50%)
 - client: ZYG Pharma, Madhya Pradesh
   area: 2500 Sq.ft
   classification: Class 100,000
-  description: Production Area Athena Drug Delivery Solutions Pvt. Ltd., Ambernath,
-    Maharashtra
+  description: Production Area
 - client: Athena Drug Delivery Solutions Pvt. Ltd., Ambernath, Maharashtra
   area: 9800 Sq.ft
   classification: Class 100,000
-  description: BULK DRUGS MANUFACTURING (Temp=22± 2´C RH ≤ 50%) Parasrampuria Engineers,
-    Dombivali
+  description: BULK DRUGS MANUFACTURING (Temp=22± 2´C RH ≤ 50%)
 - client: Parasrampuria Engineers, Dombivali
   area: 14000 Sq.ft.
   classification: Comfort A.C. 3μ.
-  description: Production Area Fabline (GENO Pharma) - Cleanroom Equipments DCI Pharma,
-    Goa
+  description: Production Area
 - client: DCI Pharma, Goa
   area: 1220 Sq.ft.
   classification: Class 100,000
-  description: Liquid Filling Area (Temp=22± 2´C RH ≤ 50%) Mother Dairy, Itawah
+  description: Liquid Filling Area (Temp=22± 2´C RH ≤ 50%)
 - client: Mother Dairy, Itawah
   area: 5780 Sq.ft.
   classification: Class 100,000
-  description: UHT / Panner Area (Temp=22± 2´C RH ≤ 50%) Godrej Industries Ltd., Ambernath
+  description: UHT / Panner Area (Temp=22± 2´C RH ≤ 50%)
 - client: Godrej Industries Ltd., Ambernath
   area: 800 Sq.ft
   classification: Class 100,000
-  description: Pestillator Plants (Temp=22± 2´C RH ≤ 50%) Lupin Limited, Ankleshwar,
-    Gujarat
+  description: Pestillator Plants (Temp=22± 2´C RH ≤ 50%)
 - client: Lupin Limited, Ankleshwar, Gujarat
   area: 1500 Sq.ft.
   classification: Class 100,000
-  description: Microlab (Temp=22± 2´C RH ≤ 50%) Videocon Industries Limited, Aurangabad,
-    Maharashtra
+  description: Microlab (Temp=22± 2´C RH ≤ 50%)
 - client: Videocon Industries Limited, Aurangabad, Maharashtra
   area: 12000 Sq.ft.
   classification: Class 100,000
-  description: LED Manufacturing Area Orgamine Chemicals Private Limited, Dombivali,
-    Maharashtra
+  description: LED Manufacturing Area
 - client: Orgamine Chemicals Private Limited, Dombivali, Maharashtra
   area: 3400 Sq.ft.
   classification: Class 100,000
-  description: Drier, Pulveriser, Blending. (Temp=22± 2´C RH ≤ 50%) Epitome Components
-    Limited, Supa, Maharashtra
+  description: Drier, Pulveriser, Blending. (Temp=22± 2´C RH ≤ 50%)
 - client: Epitome Components Limited, Supa, Maharashtra
   area: 2225 Sq.ft.
   classification: Class 10,000
-  description: Photo Imaging Area (Controller Temp & RH) VVF Limited, Taloja, Maharashtra
+  description: Photo Imaging Area (Controller Temp & RH)
 - client: VVF Limited, Taloja, Maharashtra
   area: 700 Sq.ft.
   classification: Class 100,000
-  description: Gleserene Room (Temp=22± 2´C RH ≤ 50%) Noorul Islam Centre for Higher
-    Education, Kumarcoil, Tamilnadu
+  description: Gleserene Room (Temp=22± 2´C RH ≤ 50%)
 - client: Noorul Islam Centre for Higher Education, Kumarcoil, Tamilnadu
   area: 790 Sq.ft.
   classification: Class 100,000
-  description: Sattelite Campus Parle India Private Limited, Mumbai, Maharashtra.
+  description: Sattelite Campus
 - client: Parle India Private Limited, Mumbai, Maharashtra.
   area: 800 Sq.ft.
   classification: Class 100,000
-  description: Microlab (Temp=22± 2´C RH ≤ 50%) Pfizer Limited, Verna, Goa
+  description: Microlab (Temp=22± 2´C RH ≤ 50%)
 - client: Pfizer Limited, Verna, Goa
   area: 385 Sq.ft.
   classification: Class 100,000
-  description: Blister Packing Songwon Specialty Chemicals-India Pvt. Ltd.
+  description: Blister Packing
 - client: Songwon Specialty Chemicals-India Pvt. Ltd.
   area: 1100 Sq.ft.
   classification: Class 100,000
-  description: Packaging Area Dudh Sagar Dairy, Mehsana Plant, Gujarat
+  description: Packaging Area
 - client: Dudh Sagar Dairy, Mehsana Plant, Gujarat
   area: 3350 Sq.ft.
   classification: Class 10,000
-  description: Elecster Pouch Packing Room Sumul Dairy, Surat, Gujarat
+  description: Elecster Pouch Packing Room
 - client: Sumul Dairy, Surat, Gujarat
   area: 4350 Sq.ft.
   classification: Class 10,000
-  description: Elecster Pouch Packing Room Dudhaman Sagar Dairy, Manesar Plant, Haryana
+  description: Elecster Pouch Packing Room
 - client: Dudhaman Sagar Dairy, Manesar Plant, Haryana
   area: 4400 Sq.ft.
   classification: Class 10,000
-  description: Elecster Pouch Packing Room Sursagar Dairy, Surendranagar, Gujrat
+  description: Elecster Pouch Packing Room
 - client: Sursagar Dairy, Surendranagar, Gujrat
   area: 1000 Sq.ft.
   classification: Class 10,000
-  description: 'Dahi & Chas Packing Area Banaskantha Dist. Co-Op. Milk Prod. Union
-    Ltd. ( PALANPUR/ FARIDABAD/ KANPUR ) PLANT Area Description : DEVELOPING CLEANROOM
-    INFRASTRUCTURE FOR 11620 SQ.FT AREA'
+  description: Dahi & Chas Packing Area Banaskantha Dist. Co-Op. Milk Prod. Union
+    Ltd.
+- client: ( PALANPUR/ FARIDABAD/ KANPUR ) PLANT
+  description: DEVELOPING CLEANROOM INFRASTRUCTURE FOR 11620 SQ.FT AREA

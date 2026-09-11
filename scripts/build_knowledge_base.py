@@ -19,78 +19,67 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 def parse_projects_list(text):
+    # Remove known header/footer garbage
+    garbage = [
+        "CLEANROOM PROJECTS & SERVICES",
+        "LIST OF PROJECTS",
+        "AXENIC SYSTEMS",
+        "Web Site : www.cleanroomprojects.in; Email Add: axenicsystems@gmail.com",
+        "Plot No.355/375, RSC37, Opp. Mumbai Bank, Gorai II, Borivali (west), Mumbai - 400 092",
+        "Tel No. +91-9321325199 | 9321315182 | 9321305586",
+        "DUVAL",
+        "Enterprises Pvt Ltd",
+        "Fabline (GENO Pharma) - Cleanroom Equipments"
+    ]
+    
+    raw_lines = [line.strip() for line in text.split('\n') if line.strip()]
+    lines = []
+    for line in raw_lines:
+        if line not in garbage:
+            lines.append(line)
+            
     projects = []
+    current_proj = {}
     
-    # We can split the text by "Area\n:\n" or similar, but a state machine or regex over the full text works well.
-    # The structure generally repeats:
-    # Client Name (1-2 lines)
-    # Area
-    # : <value>
-    # Classification
-    # : <value>
-    # Area Description
-    # : <value>
-    
-    # Let's split by "Area\n" and work backwards to find the client.
-    # A robust regex based approach:
-    # Match blocks that look like a project.
-    
-    lines = [line.strip() for line in text.split('\n') if line.strip()]
+    keywords = {"Area", "Classification", "Area Description"}
+    rank = {"Area": 1, "Classification": 2, "Area Description": 3}
     
     i = 0
     while i < len(lines):
-        if lines[i] == "Area" and i > 0:
-            client = lines[i-1]
+        if lines[i] in keywords:
+            client_name = lines[i-1]
+            if "client" not in current_proj:
+                current_proj["client"] = client_name
             
-            # Now extract Area, Classification, Area Description
-            area_val = ""
-            class_val = ""
-            desc_val = ""
+            kw = lines[i]
+            i += 1
             
-            # Area value
-            if i + 1 < len(lines) and lines[i+1].startswith(":"):
-                area_val = lines[i+1].lstrip(":").strip()
-                i += 2
-            elif i + 2 < len(lines) and lines[i+1] == ":" and not lines[i+2].startswith("Classification"):
-                area_val = lines[i+2].strip()
-                i += 3
-            else:
+            val_lines = []
+            while i < len(lines) and lines[i] not in keywords:
+                val_lines.append(lines[i])
                 i += 1
                 
-            # Classification
-            if i < len(lines) and lines[i] == "Classification":
-                if i + 1 < len(lines) and lines[i+1].startswith(":"):
-                    class_val = lines[i+1].lstrip(":").strip()
-                    i += 2
-                elif i + 2 < len(lines) and lines[i+1] == ":" and not lines[i+2].startswith("Area Description"):
-                    class_val = lines[i+2].strip()
-                    i += 3
-                else:
-                    i += 1
-                    
-            # Area Description
-            if i < len(lines) and lines[i] == "Area Description":
-                desc_lines = []
-                if i + 1 < len(lines) and lines[i+1].startswith(":"):
-                    desc_lines.append(lines[i+1].lstrip(":").strip())
-                    i += 2
-                elif i + 1 < len(lines) and lines[i+1] == ":":
-                    i += 2
-                else:
-                    i += 1
-                    
-                while i < len(lines) and lines[i] != "Area" and lines[i] != "Classification" and "LIST OF PROJECTS" not in lines[i] and not lines[i].startswith("Web Site"):
-                    desc_lines.append(lines[i])
-                    i += 1
-                desc_val = " ".join(desc_lines).strip()
+            is_last = True
+            if i < len(lines):
+                next_kw = lines[i]
+                if rank[next_kw] > rank[kw]:
+                    is_last = False
+            
+            next_client = None
+            if is_last and i < len(lines) and len(val_lines) > 0:
+                next_client = val_lines.pop()
                 
-            if client and (area_val or class_val or desc_val):
-                projects.append({
-                    "client": client,
-                    "area": area_val,
-                    "classification": class_val,
-                    "description": desc_val
-                })
+            val = " ".join(val_lines).strip()
+            if val.startswith(":"):
+                val = val[1:].strip()
+                
+            if kw == "Area": current_proj["area"] = val
+            elif kw == "Classification": current_proj["classification"] = val
+            elif kw == "Area Description": current_proj["description"] = val
+            
+            if is_last:
+                projects.append(current_proj)
+                current_proj = {}
         else:
             i += 1
             
