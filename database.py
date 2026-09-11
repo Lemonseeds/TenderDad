@@ -17,7 +17,9 @@ cursor.execute('''
         closing_date TEXT,
         tender_id TEXT,
         organisation TEXT,
-        tender_value TEXT
+        tender_value TEXT,
+        reasoning TEXT,
+        matched_evidence TEXT
     )
 ''')
 
@@ -29,6 +31,8 @@ for col_def in [
     "tender_id TEXT",
     "organisation TEXT",
     "tender_value TEXT",
+    "reasoning TEXT",
+    "matched_evidence TEXT",
 ]:
     try:
         cursor.execute(f"ALTER TABLE processed_tenders ADD COLUMN {col_def}")
@@ -49,13 +53,14 @@ def is_duplicate(title: str) -> bool:
 def save_tender(title: str, status: str, link: str = "", source: str = "",
                 confidence_score: float = 0.0, fit_category: str = "",
                 closing_date: str = "", tender_id: str = "",
-                organisation: str = "", tender_value: str = ""):
+                organisation: str = "", tender_value: str = "",
+                reasoning: str = "", matched_evidence: str = ""):
     """Save a processed tender to the database."""
     cursor.execute(
         """INSERT OR REPLACE INTO processed_tenders 
-           (title, status, link, source, confidence_score, fit_category, closing_date, tender_id, organisation, tender_value) 
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (title, status, link, source, confidence_score, fit_category, closing_date, tender_id, organisation, tender_value)
+           (title, status, link, source, confidence_score, fit_category, closing_date, tender_id, organisation, tender_value, reasoning, matched_evidence) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (title, status, link, source, confidence_score, fit_category, closing_date, tender_id, organisation, tender_value, reasoning, matched_evidence)
     )
     conn.commit()
 
