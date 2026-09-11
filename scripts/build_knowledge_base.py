@@ -46,7 +46,12 @@ def parse_projects_list(text):
     
     i = 0
     while i < len(lines):
+        is_keyword = False
         if lines[i] in keywords:
+            if i + 1 < len(lines) and lines[i+1].startswith(":"):
+                is_keyword = True
+                
+        if is_keyword:
             client_name = lines[i-1]
             if "client" not in current_proj:
                 current_proj["client"] = client_name
@@ -55,7 +60,14 @@ def parse_projects_list(text):
             i += 1
             
             val_lines = []
-            while i < len(lines) and lines[i] not in keywords:
+            while i < len(lines):
+                # Check if next line is a keyword
+                next_is_keyword = False
+                if lines[i] in keywords:
+                    if i + 1 < len(lines) and lines[i+1].startswith(":"):
+                        next_is_keyword = True
+                if next_is_keyword:
+                    break
                 val_lines.append(lines[i])
                 i += 1
                 

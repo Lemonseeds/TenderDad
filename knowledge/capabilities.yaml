@@ -1,34 +1,36 @@
 capabilities:
-- Design and engineer custom cleanroom layouts
-- Provide turnkey cleanroom construction and commissioning
-- Manufacture modular cleanroom wall panels, doors, ceilings, flooring, and windows
-- Supply cleanroom equipment such as HEPA filters, pass boxes, air showers, and laminar
-  flow units
-- Deliver HVAC systems including air handling units, chillers, and condensers for
-  controlled environments
-- Perform cleanroom classification and validation according to ISO 14644 and GMP standards
-- Conduct site surveys, engineering calculations, and AUTOCAD design documentation
-- Offer electrical and utility piping design, installation, and maintenance for cleanroom
-  facilities
-- Implement building management systems for temperature, humidity, pressure, and fire
-  safety monitoring
-- Provide fire suppression and detection systems, including gas‑based and conventional
-  alarms
-- Supply and install ductwork using GI, aluminum, or stainless steel for various cleanliness
-  levels
-- Integrate BMS for energy efficiency and occupant safety
-- Provide modular cleanroom flexibility, relocation, and future expansion services
-- Deliver custom cleanroom finishes meeting cGMP cleaning requirements
-- Consult on regulatory compliance with FDA, WHO, USFDA, UKMHRA, EUGMP, and related
-  standards
-- Manufacture and install cleanroom doors with interlocked vertical edges for air
-  integrity
-- Provide cleanroom ceiling systems with pre‑engineered steel panels and integrated
-  HEPA filters
-- Supply and install pass boxes (static and dynamic) and laminar flow workstations
-- Design HVAC solutions for temperature, humidity, and pressure control in pharmaceutical
-  and semiconductor labs
-- Offer maintenance and validation services for cleanroom equipment and systems
+- Design and engineering of cleanroom facilities
+- Turnkey delivery of cleanroom projects
+- Manufacture of modular cleanroom walls and panels
+- Supply and installation of cleanroom doors and ceilings
+- Provide cleanroom equipment and accessories
+- Design, supply, and install HVAC systems for controlled environments
+- Perform cleanroom validation according to ISO 14644 standards
+- Ensure compliance with FDA, WHO, GMP, ISO, EUGMP, and other regulatory guidelines
+- Conduct site surveys and develop design concepts
+- Perform engineering calculations and produce AutoCAD design files
+- Plan and manage cleanroom construction projects
+- Balance make‑up and exhaust air for pressure control
+- Control temperature, humidity, and airflow in cleanrooms
+- Design and install air handling units (AHU) with filtration, heating, cooling, and
+  humidification
+- Fabricate and install ductwork using GI, aluminum, or stainless steel
+- Supply and install chillers and condensing units for process cooling
+- Design and install utility piping systems for gases, water, and condensate
+- Provide comprehensive electrical services including power distribution, control
+  wiring, and lighting
+- Implement building management systems (BMS) for monitoring temperature, humidity,
+  pressure, and safety
+- Install fire detection, alarm, and gas‑based fire suppression systems
+- Provide gas leak detection systems for safety monitoring
+- Offer modular cleanroom expansion, relocation, and upgrade capabilities
+- Deliver custom cleanroom solutions for pharmaceutical, biotech, semiconductor, defense,
+  and food industries
+- Provide cleanroom certification and compliance documentation
+- Supply HEPA filters, laminar flow units, pass boxes, and air showers
+- Design and install cleanroom flooring, windows, and lighting fixtures
+- Offer cleanroom furniture, lockers, and storage solutions
+- Provide maintenance and after‑sales support for cleanroom and HVAC systems
 past_projects:
 - client: Semiconductor Laboratory, Mohali.
   area: 1900 Sq.ft
@@ -54,9 +56,7 @@ past_projects:
 - client: Indian Institute of Technology, Mandi
   area: 3500 Sq.ft
   classification: Class 100 & 1000
-  description: ''
-- client: ': Lithography , Sample Preparation Process Area & Gowning'
-  area: ''
+  description: Lithography , Sample Preparation Process Area & Gowning Area
 - client: Punjab Engineering College - Chandigarh
   area: 1700 Sq.ft
   classification: CLASS 1,000 & 10,000
