@@ -50,7 +50,7 @@ def scrape_gepnic(portal_name: str, portal_url: str, keyword: str = "HVAC") -> l
             for attempt in range(1, CAPTCHA_MAX_RETRIES + 1):
                 print(f"[{portal_name}] CAPTCHA attempt {attempt} of {CAPTCHA_MAX_RETRIES}...")
 
-                captcha_text = solve_captcha(page)
+                captcha_text, raw_img_bytes = solve_captcha(page)
 
                 if not captcha_text:
                     print(f"[{portal_name}] OCR returned empty. Refreshing CAPTCHA...")
@@ -58,6 +58,18 @@ def scrape_gepnic(portal_name: str, portal_url: str, keyword: str = "HVAC") -> l
                         page.locator('button#captcha').click()
                         page.wait_for_timeout(1500)
                     continue
+
+                # Setup dialog interceptor
+                dialog_msg = {"text": ""}
+                def handle_dialog(dialog):
+                    dialog_msg["text"] = dialog.message
+                    try:
+                        dialog.dismiss()
+                    except:
+                        pass
+                
+                # We use once so it doesn't stack up listeners
+                page.once("dialog", handle_dialog)
 
                 # Fill the CAPTCHA input and click Search
                 page.locator('input#captchaText').fill(captcha_text)
@@ -69,21 +81,54 @@ def scrape_gepnic(portal_name: str, portal_url: str, keyword: str = "HVAC") -> l
                 # Wait for page to respond
                 page.wait_for_timeout(4000)
 
+                # Check dialog message first
+                msg = dialog_msg["text"].lower()
+                if "no records" in msg or "no tenders" in msg or "nothing found" in msg or "no active tenders" in msg:
+                    print(f"[{portal_name}] CAPTCHA solved! Alert popup: '{dialog_msg['text']}'")
+                    import os, time
+                    dataset_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "captcha_dataset")
+                    os.makedirs(dataset_dir, exist_ok=True)
+                    filename = f"{captcha_text}_{int(time.time()*1000)}.png"
+                    with open(os.path.join(dataset_dir, filename), 'wb') as f:
+                        f.write(raw_img_bytes)
+                    captcha_solved = True
+                    break
+
                 # Check if results loaded
                 if page.locator('a[title="View Tender Information"]').count() > 0:
                     print(f"[{portal_name}] CAPTCHA solved! Results loaded.")
+                    import os, time
+                    dataset_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "captcha_dataset")
+                    os.makedirs(dataset_dir, exist_ok=True)
+                    filename = f"{captcha_text}_{int(time.time()*1000)}.png"
+                    with open(os.path.join(dataset_dir, filename), 'wb') as f:
+                        f.write(raw_img_bytes)
+                    captcha_solved = True
+                    break
+                elif page.locator("text=/No Records Found/i").count() > 0 or \
+                     page.locator("text=/Nothing found/i").count() > 0 or \
+                     page.locator("text=/No Tenders/i").count() > 0 or \
+                     page.locator("text=/No active tenders/i").count() > 0:
+                    print(f"[{portal_name}] CAPTCHA solved! No results found for keyword.")
+                    import os, time
+                    dataset_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "captcha_dataset")
+                    os.makedirs(dataset_dir, exist_ok=True)
+                    filename = f"{captcha_text}_{int(time.time()*1000)}.png"
+                    with open(os.path.join(dataset_dir, filename), 'wb') as f:
+                        f.write(raw_img_bytes)
+                    captcha_solved = True
+                    break
+                elif page.locator('input#captchaText').count() == 0:
+                    print(f"[{portal_name}] CAPTCHA solved! Search form disappeared.")
                     captcha_solved = True
                     break
                 else:
-                    print(f"[{portal_name}] Attempt {attempt} failed. Retrying...")
+                    if dialog_msg["text"]:
+                        print(f"[{portal_name}] Attempt {attempt} failed. Alert: '{dialog_msg['text']}'")
+                    else:
+                        print(f"[{portal_name}] Attempt {attempt} failed. Retrying...")
                     
-                    # Dismiss any error alert/dialog that may have popped up
-                    try:
-                        page.on("dialog", lambda dialog: dialog.dismiss())
-                    except Exception:
-                        pass
-                    
-                    # Check for error message elements and dismiss them
+                    # Check for error message elements in DOM and dismiss them
                     error_ok = page.locator("button:has-text('OK'), button:has-text('Close'), .ui-dialog-buttonset button")
                     if error_ok.count() > 0:
                         error_ok.first.click()
@@ -122,6 +167,14 @@ def scrape_gepnic(portal_name: str, portal_url: str, keyword: str = "HVAC") -> l
             # 5. Scrape the results
             print(f"[{portal_name}] Scraping results...")
             
+            # If we already know there are no results, return early
+            if page.locator("text=/No Records Found/i").count() > 0 or \
+                 page.locator("text=/Nothing found/i").count() > 0 or \
+                 page.locator("text=/No Tenders/i").count() > 0 or \
+                 page.locator("text=/No active tenders/i").count() > 0:
+                print(f"[{portal_name}] No tenders found for keyword '{keyword}'. Returning empty list.")
+                return tenders
+                
             # Derive the search URL from this specific portal (fixes cross-portal bug)
             # e.g. "https://etenders.kerala.gov.in/nicgep/app?page=FrontEndLatestActiveTenders..."
             #   -> "https://etenders.kerala.gov.in/nicgep/app?page=FrontEndAdvancedSearch&service=page"

@@ -18,10 +18,12 @@ CLASSIFICATION_MODELS = [
 ]
 
 VISION_MODELS = [
-    "gemini-pro-latest",
+    "qwen/qwen3.6-27b",
+    "qwen/qwen3.8-27b",
 ]
 
-# --- LLM Scoring Settings ---
+# --- CAPTCHA/LLM Scoring Settings ---
+OCR_CONFIDENCE_THRESHOLD = 0.85
 LLM_SKIP_THRESHOLD = 20  # below this math confidence, skip LLM entirely
 
 # --- Search Keywords ---
@@ -54,7 +56,7 @@ PORTALS = [
 ]
 
 # --- CAPTCHA Settings ---
-CAPTCHA_MAX_RETRIES = 20
+CAPTCHA_MAX_RETRIES = 40
 
 # --- Pagination Limit ---
 MAX_PAGES = 30

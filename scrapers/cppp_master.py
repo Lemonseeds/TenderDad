@@ -39,24 +39,26 @@ def scrape_cppp_master(portal_name: str, portal_url: str, keyword: str = "HVAC")
                 print(f"[{portal_name}] CAPTCHA attempt {attempt} of {CAPTCHA_MAX_RETRIES}...")
 
                 # CPPP Master uses a different CAPTCHA image tag
-                captcha_text = solve_captcha(page, image_selector='img[src*="image-captcha-generate"]')
+                captcha_text, raw_img_bytes = solve_captcha(page, image_selector='img[src*="image-captcha-generate"]')
 
                 if not captcha_text:
-                    print(f"[{portal_name}] OCR returned empty. Refreshing page...")
+                    print(f"[{portal_name}] Failed to read CAPTCHA. Retrying...")
                     page.reload()
                     page.wait_for_selector("input#skeyword", timeout=15000)
                     page.locator("input#skeyword").fill(keyword)
                     continue
 
+                print(f"[{portal_name}] Guessed CAPTCHA: '{captcha_text}'")
+                
                 # Verify the keyword is still in the search box before submitting
                 current_keyword = page.locator('input#skeyword').input_value()
                 if current_keyword.strip() != keyword:
                     print(f"[{portal_name}] Keyword was cleared! Re-filling '{keyword}'...")
                     page.locator('input#skeyword').fill(keyword)
-                
-                page.locator('input#edit-captcha-response').fill(captcha_text)
-                print(f"[{portal_name}] Filled in: '{captcha_text}'")
 
+                # Fill CAPTCHA and submit
+                page.locator('input#edit-captcha-response').fill(captcha_text)
+                
                 # The submit button is #btnSearch
                 page.locator('input#btnSearch').click()
                 print(f"[{portal_name}] Clicked Search.")
@@ -64,16 +66,26 @@ def scrape_cppp_master(portal_name: str, portal_url: str, keyword: str = "HVAC")
                 # Wait for page to respond
                 page.wait_for_timeout(4000)
 
-                # Check if results loaded (table rows appear, or error messages disappear)
-                if page.locator('table tbody tr').count() > 0:
-                    print(f"[{portal_name}] CAPTCHA solved! Results loaded.")
-                    captcha_solved = True
-                    break
-                else:
-                    print(f"[{portal_name}] Attempt {attempt} failed. Retrying...")
-                    page.reload()
+                # Check if CAPTCHA failed by looking for the error message
+                error_exists = page.locator('text="The answer you entered for the CAPTCHA was not correct."').count() > 0
+                
+                if error_exists:
+                    print(f"[{portal_name}] Attempt {attempt} failed (incorrect CAPTCHA). Retrying...")
+                    # The page might have reloaded, so re-fill the keyword
                     page.wait_for_selector("input#skeyword", timeout=15000)
                     page.locator("input#skeyword").fill(keyword)
+                else:
+                    print(f"[{portal_name}] CAPTCHA solved! Search successful.")
+                    
+                    # Be smart: Save the successfully solved CAPTCHA to a dataset folder
+                    dataset_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "captcha_dataset")
+                    os.makedirs(dataset_dir, exist_ok=True)
+                    filename = f"{captcha_text}_{int(time.time()*1000)}.png"
+                    with open(os.path.join(dataset_dir, filename), 'wb') as f:
+                        f.write(raw_img_bytes)
+                    
+                    captcha_solved = True
+                    break
 
             if not captcha_solved:
                 print(f"\n[{portal_name}] Auto-solve failed after {CAPTCHA_MAX_RETRIES} attempts.")
@@ -97,6 +109,14 @@ def scrape_cppp_master(portal_name: str, portal_url: str, keyword: str = "HVAC")
 
             # 4. Scrape Results
             print(f"[{portal_name}] Scraping results...")
+            
+            # If there are no results, the portal usually displays a message.
+            if page.locator("text=/No Records Found/i").count() > 0 or \
+                 page.locator("text=/Nothing found/i").count() > 0 or \
+                 page.locator("text=/No Tenders/i").count() > 0 or \
+                 page.locator("text=/No active tenders/i").count() > 0:
+                print(f"[{portal_name}] No tenders found for keyword '{keyword}'. Returning empty list.")
+                return tenders
             
             # Base URL is https://eprocure.gov.in
             base_url = "https://eprocure.gov.in"

@@ -14,6 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 
+import config
 from config import PORTALS, SEARCH_KEYWORDS
 from scrapers.gepnic import scrape_gepnic
 from scrapers.cppp_master import scrape_cppp_master
@@ -46,18 +47,26 @@ def scrape_all_portals() -> list[dict]:
     jobs = [(portal, keyword) for portal in PORTALS for keyword in SEARCH_KEYWORDS]
     total = len(jobs)
 
-    print(f"\n⚡ {total} scraping jobs, running one by one...\n")
+    print(f"\n⚡ {total} scraping jobs, running concurrently (Batch Size: {config.BATCH_SIZE})...\n")
     start = time.perf_counter()
 
-    for i, (portal, keyword) in enumerate(jobs, 1):
-        label = f"{portal['name']} / {keyword}"
-        print(f"\n[{i}/{total}] {label}")
-        try:
-            tenders = _scrape_one(portal, keyword)
-            all_tenders.extend(tenders)
-            print(f"  ✓ {label} — {len(tenders)} tenders")
-        except Exception as e:
-            print(f"  ✗ {label} — FAILED: {e}")
+    with ThreadPoolExecutor(max_workers=config.BATCH_SIZE) as executor:
+        # Submit all jobs to the thread pool
+        future_to_job = {
+            executor.submit(_scrape_one, portal, keyword): (portal, keyword) 
+            for portal, keyword in jobs
+        }
+        
+        # Process results as they complete
+        for i, future in enumerate(as_completed(future_to_job), 1):
+            portal, keyword = future_to_job[future]
+            label = f"{portal['name']} / {keyword}"
+            try:
+                tenders = future.result()
+                all_tenders.extend(tenders)
+                print(f"[{i}/{total}] ✓ {label} — {len(tenders)} tenders")
+            except Exception as e:
+                print(f"[{i}/{total}] ✗ {label} — FAILED: {e}")
 
     elapsed = time.perf_counter() - start
     print(f"\n⚡ All {total} jobs finished in {elapsed:.1f}s  ({len(all_tenders)} tenders total)\n")
