@@ -23,6 +23,7 @@ reports/
 # Private Company Documents & PDFs
 docs/
 *.pdf
+scratch/
 
 
 # OS generated files

@@ -18,7 +18,7 @@ from config import PORTALS, SEARCH_KEYWORDS
 from scrapers.gepnic import scrape_gepnic
 from scrapers.cppp_master import scrape_cppp_master
 from pipeline import app
-from vector_db import ingest_pdfs
+from vector_db import load_knowledge_base
 from reporter import generate_pdf_digest, send_email_digest
 
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print("  STEP 1: Preparing Vector Database")
     print("=" * 60)
-    ingest_pdfs()
+    load_knowledge_base()
     
     # 2. Scrape all portals
     print("\n" + "=" * 60)
