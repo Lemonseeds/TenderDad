@@ -7,6 +7,10 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 if GROQ_API_KEY:
     os.environ["GROQ_API_KEY"] = GROQ_API_KEY
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+if GEMINI_API_KEY:
+    os.environ["GEMINI_API_KEY"] = GEMINI_API_KEY
+
 # --- LLM Model Names (1 Main + 2 Backups) ---
 CLASSIFICATION_MODELS = [
     "openai/gpt-oss-120b",
@@ -14,13 +18,20 @@ CLASSIFICATION_MODELS = [
 ]
 
 VISION_MODELS = [
-    "qwen/qwen3.6-27b",
-    "qwen/qwen3.8-27b",
+    "gemini-pro-latest",
 ]
+
+# --- LLM Scoring Settings ---
+LLM_SKIP_THRESHOLD = 20  # below this math confidence, skip LLM entirely
 
 # --- Search Keywords ---
 SEARCH_KEYWORDS = [
     "HVAC",
+    "cleanroom",
+    "clean room",
+    "AHU",
+    "chiller plant",
+    "ducting",
 ]
 
 # --- Tender Portals ---

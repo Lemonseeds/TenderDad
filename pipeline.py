@@ -67,6 +67,17 @@ def score_tender(state: TenderState):
             "fit_category": math_fit_category
         }
 
+    from config import LLM_SKIP_THRESHOLD
+    if math_confidence < LLM_SKIP_THRESHOLD:
+        reasoning = f"[{math_fit_category}] Auto-scored: retrieval confidence too low for LLM review ({math_confidence}%)."
+        print(f"  Score: {math_confidence}% ({math_fit_category}) - SKIPPED LLM")
+        return {
+            "is_relevant": False,
+            "reasoning": reasoning,
+            "confidence_score": math_confidence,
+            "fit_category": math_fit_category
+        }
+
     # Prepare retrieved documents context
     context_str = ""
     for idx, doc in enumerate(query_result["documents"]):
