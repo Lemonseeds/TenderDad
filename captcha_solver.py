@@ -1,26 +1,92 @@
+import os
 import re
-import base64
 import threading
-import time
-import ddddocr
-from groq import Groq
-from config import VISION_MODELS
+import torch
+import torch.nn as nn
+from torchvision import transforms
+from PIL import Image
+import io
 
-# --- Groq Client for Vision Fallback ---
-client = Groq()
+# --- Custom CRNN Model Definition ---
+ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+NUM_CLASSES = len(ALPHABET) + 1 # +1 for CTC blank token
 
-# --- Initialize ddddocr Ensemble ---
-print("[CAPTCHA] Initializing ddddocr ensemble...")
-ocr_default = ddddocr.DdddOcr(show_ad=False)
-ocr_old = ddddocr.DdddOcr(old=True, show_ad=False)
+class CRNN(nn.Module):
+    def __init__(self, num_classes):
+        super(CRNN, self).__init__()
+        
+        self.cnn = nn.Sequential(
+            nn.Conv2d(1, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d((2, 1), (2, 1)),
+            
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.MaxPool2d((2, 1), (2, 1))
+        )
+        
+        self.rnn = nn.GRU(256 * 3, 128, bidirectional=True, num_layers=2, batch_first=True)
+        self.fc = nn.Linear(256, num_classes)
 
-# Lock to prevent rate limiting from Groq when multiple browsers fallback simultaneously
-groq_lock = threading.Lock()
+    def forward(self, x):
+        conv = self.cnn(x)
+        batch, c, h, w = conv.size()
+        conv = conv.view(batch, c * h, w)
+        conv = conv.permute(0, 2, 1)
+        rnn_out, _ = self.rnn(conv)
+        out = self.fc(rnn_out)
+        
+        import torch.nn.functional as F
+        out = F.log_softmax(out, dim=2)
+        out = out.permute(1, 0, 2)
+        return out
+
+# --- Initialize Custom OCR Model ---
+print("[CAPTCHA] Loading custom PyTorch CRNN model...")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "custom_ocr.pth")
+model = CRNN(NUM_CLASSES).to(device)
+if os.path.exists(MODEL_PATH):
+    model.load_state_dict(torch.load(MODEL_PATH, map_location=device, weights_only=True))
+model.eval()
+
+transform = transforms.Compose([
+    transforms.Resize((48, 128)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.5], std=[0.5])
+])
+
+# Lock to ensure thread-safe PyTorch inference
+model_lock = threading.Lock()
+
+def decode_ctc(preds):
+    """Decodes CTC output into a string using greedy decoding."""
+    # preds: (Time, Batch)
+    preds = preds[:, 0].cpu().numpy()
+    result = []
+    prev_char = None
+    for p in preds:
+        if p != NUM_CLASSES - 1 and p != prev_char: # Not blank and not duplicate
+            result.append(ALPHABET[p])
+        prev_char = p
+    return "".join(result)
 
 def solve_captcha(page, image_selector: str = 'img#captchaImage') -> tuple[str, bytes]:
     """
-    Screenshots the CAPTCHA image and uses a ddddocr ensemble locally.
-    If the two models disagree or fail to find 6 characters, it falls back to Groq Vision LLM.
+    Screenshots the CAPTCHA image and solves it instantly using the custom CRNN PyTorch model.
     Returns: (sanitized_captcha_text, raw_image_bytes)
     """
     try:
@@ -33,77 +99,27 @@ def solve_captcha(page, image_selector: str = 'img#captchaImage') -> tuple[str, 
         # 1. Screenshot the CAPTCHA element
         raw_img_bytes = captcha_img.screenshot()
         
-        # 2. Local OCR Ensemble
-        raw_text_1 = ocr_default.classification(raw_img_bytes)
-        raw_text_2 = ocr_old.classification(raw_img_bytes)
+        # 2. Preprocess
+        image = Image.open(io.BytesIO(raw_img_bytes)).convert('L')
+        tensor = transform(image).unsqueeze(0).to(device)
         
-        # Sanitize (default model outputs lowercase anyway, but old model is mixed case)
-        text_1_lower = re.sub(r'[^a-zA-Z0-9]', '', raw_text_1).lower()
-        text_2_lower = re.sub(r'[^a-zA-Z0-9]', '', raw_text_2).lower()
+        # 3. Inference
+        with model_lock:
+            with torch.no_grad():
+                outputs = model(tensor)
+                # outputs: (Time, Batch, Classes)
+                preds = outputs.argmax(2) # (Time, Batch)
+                
+        # 4. Decode
+        guess = decode_ctc(preds)
         
-        # The actual text to submit (preserve case from old model)
-        submit_text = re.sub(r'[^a-zA-Z0-9]', '', raw_text_2)
+        # 5. Sanitize
+        submit_text = re.sub(r'[^a-zA-Z0-9]', '', guess)
         
-        # Exact length 6 and agreement means HIGH CONFIDENCE local solve!
-        if len(text_1_lower) == 6 and text_1_lower == text_2_lower:
-            print(f"[CAPTCHA] Local CNN High Confidence Solve: '{submit_text}'")
+        if len(submit_text) > 0:
+            print(f"[CAPTCHA] Solved via Custom Model: '{submit_text}'")
             return submit_text, raw_img_bytes
             
-        print(f"[CAPTCHA] Local CNN unconfident (mismatch or bad length). Falling back to Groq Vision LLM...")
-        
-        # 3. Vision LLM Fallback
-        base64_image = base64.b64encode(raw_img_bytes).decode('utf-8')
-        
-        with groq_lock:
-            for model in VISION_MODELS:
-                try:
-                    print(f"[CAPTCHA] Requesting solve from {model}...")
-                    response = client.chat.completions.create(
-                        model=model,
-                        messages=[
-                            {
-                                "role": "user",
-                                "content": [
-                                    {
-                                        "type": "text", 
-                                        "text": "Please read the text in this CAPTCHA. The CAPTCHA contains EXACTLY 6 alphanumeric characters. Return ONLY the 6 characters, with absolutely no other text, punctuation, or spaces."
-                                    },
-                                    {
-                                        "type": "image_url",
-                                        "image_url": {
-                                            "url": f"data:image/png;base64,{base64_image}"
-                                        }
-                                    }
-                                ]
-                            }
-                        ],
-                        max_tokens=10,
-                        temperature=0.0
-                    )
-                    
-                    raw_guess = response.choices[0].message.content.strip()
-                    
-                    # If the model uses Chain-of-Thought (like DeepSeek or newer Qwens), 
-                    # it outputs <think>...</think>. We must remove everything inside those tags first!
-                    raw_guess = re.sub(r'<think>.*?</think>', '', raw_guess, flags=re.DOTALL)
-                    
-                    guess = re.sub(r'[^a-zA-Z0-9]', '', raw_guess)
-                    
-                    # Truncate if model hallucinates extra chars
-                    if len(guess) > 6:
-                        guess = guess[-6:] # Take the LAST 6 characters, in case it said "The answer is ABCDEF"
-                        
-                    if len(guess) == 6:
-                        print(f"[CAPTCHA] Solved via Groq ({model}): '{guess}'")
-                        time.sleep(1.5) # Prevent rate limits
-                        return guess, raw_img_bytes
-                    else:
-                        print(f"[CAPTCHA] Groq returned invalid length: '{guess}'. Trying next model...")
-                        
-                except Exception as e:
-                    print(f"[CAPTCHA] Groq model {model} failed: {e}")
-                    time.sleep(2)
-                    
         return "", b""
 
     except Exception as e:
